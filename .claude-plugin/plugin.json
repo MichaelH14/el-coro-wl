@@ -1,0 +1,10 @@
+{
+  "name": "el-coro",
+  "version": "1.0.0",
+  "description": "El Coro: 26 agents, 84 skills, 43 commands — AI orchestration plugin for Claude Code with Agent Teams, sombra profiling, growth engine, support agent, and genesis self-evolution.",
+  "author": {
+    "name": "Your Name"
+  },
+  "repository": "https://github.com/yourusername/el-coro-wl",
+  "license": "MIT"
+}

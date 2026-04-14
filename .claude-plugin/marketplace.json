@@ -1,0 +1,15 @@
+{
+  "name": "el-coro-local",
+  "description": "El Coro — AI orchestration plugin for Claude Code",
+  "owner": {
+    "name": "Your Name"
+  },
+  "plugins": [
+    {
+      "name": "el-coro",
+      "source": "./",
+      "version": "1.0.0",
+      "description": "El Coro: 26 agents, 84 skills, 43 commands, Agent Teams, sombra profiling, growth engine, support agent"
+    }
+  ]
+}

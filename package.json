@@ -1,0 +1,14 @@
+{
+  "name": "el-coro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plugin personalizado para Claude Code",
+  "scripts": {
+    "init-db": "node scripts/lib/state-store/init.js",
+    "migrate-db": "node scripts/lib/state-store/migrate.js",
+    "backup-db": "node scripts/lib/state-store/backup.js"
+  },
+  "dependencies": {
+    "sql.js": "^1.10.0"
+  }
+}

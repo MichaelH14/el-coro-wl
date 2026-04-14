@@ -1,0 +1,6 @@
+{
+  "name": "sql.js",
+  "version": "1.14.1",
+  "main": "./dist/sql-wasm.js",
+  "license": "MIT"
+}

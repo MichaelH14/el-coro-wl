@@ -1,0 +1,55 @@
+# Personal config (never commit)
+config/el-coro.json
+
+# Runtime data
+state/
+*.db
+*.db-wal
+*.db-shm
+sombra/profile.json
+sombra/profile.json.tmp
+sombra/profile.json.lock
+sombra/evolution.jsonl
+sombra/session_log/
+sombra/predictions/pending.json
+sombra/predictions/resolved.json
+
+# VPS worker data
+vps/monitor-logs.json
+vps/support-tickets.json
+vps/growth-metrics.json
+vps/node_modules/
+
+# Dashboard build artifacts
+dashboard/.next/
+dashboard/node_modules/
+dashboard/out/
+
+# Env files (never commit)
+.env
+.env.local
+.env.*.local
+vps/.env
+dashboard/.env
+dashboard/.env.local
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs
+logs/
+*.log
+.plugin-data/

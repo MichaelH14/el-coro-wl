@@ -1,0 +1,45 @@
+{
+  "version": "1.0.0",
+  "last_updated": null,
+  "communication": {
+    "patterns": [],
+    "vocabulary": {},
+    "anti_patterns": [],
+    "language": "en"
+  },
+  "decisions": {
+    "history": [],
+    "tendencies": {},
+    "predictions": []
+  },
+  "preferences": {
+    "technical": {},
+    "aesthetic": {},
+    "workflow": {}
+  },
+  "personality": {
+    "traits": [],
+    "observed_behaviors": []
+  },
+  "triggers": {
+    "frustration": [],
+    "satisfaction": []
+  },
+  "work_style": {
+    "patterns": [],
+    "hours": {},
+    "priorities": []
+  },
+  "domain_confidence": {
+    "communication": 0.0,
+    "decisions_technical": 0.0,
+    "aesthetic_ui": 0.0,
+    "triggers_emotional": 0.0,
+    "work_patterns": 0.0,
+    "code_style": 0.0,
+    "tool_preferences": 0.0,
+    "prioritization": 0.0,
+    "architecture": 0.0,
+    "business_intuition": 0.0
+  }
+}

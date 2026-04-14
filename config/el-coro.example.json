@@ -1,0 +1,44 @@
+{
+  "owner": {
+    "name": "Your Name",
+    "github": "https://github.com/yourusername/el-coro-wl"
+  },
+  "vps": {
+    "host": "YOUR_VPS_IP",
+    "user": "YOUR_VPS_USER",
+    "remoteDir": "/home/YOUR_VPS_USER/el-coro-vps",
+    "dashboardPort": 3200
+  },
+  "services": [
+    {
+      "name": "My Service 1",
+      "port": 3000,
+      "url": "service1.example.com",
+      "description": "Description of your service"
+    },
+    {
+      "name": "My Service 2",
+      "port": 3001,
+      "url": "service2.example.com",
+      "description": "Description of your second service"
+    }
+  ],
+  "notifications": {
+    "whatsapp": {
+      "enabled": false,
+      "apiUrl": "http://YOUR_WHATSAPP_API_HOST:PORT",
+      "sendEndpoint": "/api/send",
+      "messagesEndpoint": "/api/messages"
+    }
+  },
+  "products": [
+    {
+      "name": "Product 1",
+      "description": "Your main product"
+    },
+    {
+      "name": "Product 2",
+      "description": "Your second product"
+    }
+  ]
+}
