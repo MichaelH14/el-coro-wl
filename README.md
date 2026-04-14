@@ -37,31 +37,42 @@ Pre/Post tool-use hooks for: secret scanning, port safety, deploy guard, type-ch
 
 ## Quick start
 
-### 1. Clone
+### 1. Install via Claude Code marketplace
 
-```bash
-git clone https://github.com/yourusername/el-coro-wl.git ~/projects/el-coro
-cd ~/projects/el-coro
+Inside a Claude Code session, run:
+
 ```
+/plugin marketplace add MichaelH14/el-coro-wl
+/plugin install el-coro@el-coro-wl
+```
+
+That's it. El Coro activates on every new session via the `SessionStart` hook.
 
 ### 2. Configure
 
+After install, the plugin lives under `~/.claude/plugins/cache/el-coro-wl/el-coro/<version>/`.
+Clone the repo locally to edit your personal config:
+
 ```bash
+git clone https://github.com/MichaelH14/el-coro-wl.git ~/projects/el-coro
+cd ~/projects/el-coro
 cp config/el-coro.example.json config/el-coro.json
 ```
 
 Edit `config/el-coro.json` with your values:
 - `owner.name` / `owner.github` — your identity
-- `vps.host` / `vps.user` — your VPS SSH credentials
+- `vps.host` / `vps.user` — your VPS SSH credentials (optional)
 - `services` — the services you want `monitor` / `growth-engine` to track
 - `notifications.whatsapp` — optional, enable if you have a WhatsApp API bridge
 - `products` — the products `growth-engine` / `support-agent` work on
 
-### 3. Install as a Claude Code plugin
+### 3. Updates
 
-Follow the [Claude Code plugin install guide](https://docs.claude.com/en/docs/claude-code/plugins) to install this directory as a local plugin.
+Updates are automatic when auto-update is enabled (default). To force an update:
 
-Once installed, El Coro activates on every Claude Code session via the `SessionStart` hook.
+```
+/plugin marketplace update el-coro-wl
+```
 
 ### 4. (Optional) Deploy VPS workers
 

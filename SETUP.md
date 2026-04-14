@@ -64,20 +64,20 @@ Open `config/el-coro.json` and fill in your values:
 
 ## 3. Install as a Claude Code plugin
 
-El Coro installs as a local plugin. The exact install method depends on your Claude Code version; common options:
+Inside any Claude Code session:
 
-**Option A — Via marketplace (if supported):**
-```bash
-claude plugin marketplace add ./el-coro-wl
-claude plugin install el-coro@el-coro-local
 ```
-
-**Option B — Via direct symlink:**
-```bash
-ln -s ~/projects/el-coro ~/.claude/plugins/el-coro
+/plugin marketplace add MichaelH14/el-coro-wl
+/plugin install el-coro@el-coro-wl
 ```
 
 Restart Claude Code. You should see El Coro's activation message on session start.
+
+**Updates:**
+```
+/plugin marketplace update el-coro-wl
+```
+Auto-update is enabled by default — you generally don't need to run this manually.
 
 ## 4. (Optional) Deploy VPS workers
 

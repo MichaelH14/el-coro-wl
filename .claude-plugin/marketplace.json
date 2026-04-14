@@ -1,8 +1,8 @@
 {
-  "name": "el-coro-local",
+  "name": "el-coro-wl",
   "description": "El Coro — AI orchestration plugin for Claude Code",
   "owner": {
-    "name": "Your Name"
+    "name": "El Coro"
   },
   "plugins": [
     {
