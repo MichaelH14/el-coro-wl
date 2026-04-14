@@ -74,6 +74,29 @@ Updates are automatic when auto-update is enabled (default). To force an update:
 /plugin marketplace update el-coro-wl
 ```
 
+---
+
+## Contributing / Releasing
+
+If you forked this repo and want to publish updates under your own marketplace:
+
+```bash
+# One-time setup (enables auto-bump pre-commit hook)
+./scripts/install-hooks.sh
+```
+
+From then on, every commit that touches plugin components (`agents/`, `commands/`, `skills/`, `hooks/`, `rules/`, `dashboard/`, `vps/`, `scripts/`, `BLINDAJE.md`) automatically bumps the patch version in `.claude-plugin/plugin.json`. Users who installed your marketplace get the update on their next Claude Code session.
+
+Manual bump:
+```bash
+node scripts/bump-version.mjs minor   # or major
+```
+
+Skip auto-bump for a specific commit (e.g. docs only):
+```bash
+EL_CORO_NO_BUMP=1 git commit -m "docs: ..."
+```
+
 ### 4. (Optional) Deploy VPS workers
 
 If you want the 24/7 background workers (monitor, support, growth, dashboard):

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Auto-bump plugin version (patch) when plugin components change.
+# Skips bump if:
+#   - plugin.json is already staged (user bumped manually)
+#   - commit message env var says so (EL_CORO_NO_BUMP=1)
+#   - no relevant files are staged
+
+set -e
+
+[ "${EL_CORO_NO_BUMP:-0}" = "1" ] && exit 0
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+staged="$(git diff --cached --name-only)"
+[ -z "$staged" ] && exit 0
+
+# If plugin.json was already bumped by hand, respect it
+if echo "$staged" | grep -q '^\.claude-plugin/plugin\.json$'; then
+  exit 0
+fi
+
+# Paths that warrant a version bump
+relevant_re='^(agents|commands|skills|hooks|rules|vps|dashboard|scripts|sombra/profile\.template\.json|vendor)/|^BLINDAJE\.md$|^package\.json$'
+
+if ! echo "$staged" | grep -qE "$relevant_re"; then
+  exit 0
+fi
+
+# Skip if the only staged scripts/ change is the bump script itself
+if echo "$staged" | grep -qE "$relevant_re" && \
+   [ "$(echo "$staged" | grep -vE '^scripts/(bump-version\.mjs|install-hooks\.sh)$' | grep -cE "$relevant_re")" = "0" ]; then
+  exit 0
+fi
+
+node scripts/bump-version.mjs patch
+git add .claude-plugin/plugin.json .claude-plugin/marketplace.json
+echo "[pre-commit] Auto-bumped plugin version (patch)."
