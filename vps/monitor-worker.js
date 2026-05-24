@@ -37,12 +37,16 @@ function isWhatsAppEnabled() {
 function readLog() {
   try {
     if (fs.existsSync(LOG_FILE)) {
-      return JSON.parse(fs.readFileSync(LOG_FILE, "utf8"));
+      const parsed = JSON.parse(fs.readFileSync(LOG_FILE, "utf8"));
+      if (!parsed.serviceState) {
+        parsed.serviceState = {};
+      }
+      return parsed;
     }
   } catch (err) {
     console.error("[monitor] Failed to read log:", err.message);
   }
-  return { checks: [], alerts: [] };
+  return { checks: [], alerts: [], serviceState: {} };
 }
 
 function writeLog(data) {
@@ -128,15 +132,31 @@ async function runHealthChecks() {
     log.checks = log.checks.slice(-100);
   }
 
-  // Alert on any down services
-  const downServices = results.filter((r) => r.status === "down");
-  for (const svc of downServices) {
-    const alertMsg = `\u26a0\ufe0f ${svc.name} caido desde ${timestamp}`;
-    console.error(`[monitor] ALERT: ${alertMsg}`);
+  for (const result of results) {
+    const prev = log.serviceState[result.name]?.status;
+    const curr = result.status;
 
-    await sendAlert(alertMsg);
-
-    log.alerts.push({ timestamp, service: svc.name, message: alertMsg });
+    if (curr === "down" && (prev === "up" || prev === undefined)) {
+      const alertMsg = `\u26a0\ufe0f ${result.name} caido desde ${timestamp}`;
+      console.error(`[monitor] ALERT: ${alertMsg}`);
+      await sendAlert(alertMsg);
+      log.alerts.push({ timestamp, service: result.name, kind: "outage", message: alertMsg });
+      log.serviceState[result.name] = { status: "down", since: timestamp, lastAlertedAt: timestamp };
+    } else if (curr === "down" && prev === "down") {
+      continue;
+    } else if (curr === "up" && prev === "down") {
+      const sinceISO = log.serviceState[result.name]?.since || timestamp;
+      const downMinutes = Math.max(1, Math.round((new Date(timestamp) - new Date(sinceISO)) / 60000));
+      const recoveryMsg = `\u2705 ${result.name} recuperado tras ${downMinutes}m`;
+      console.log(`[monitor] RECOVERY: ${recoveryMsg}`);
+      await sendAlert(recoveryMsg);
+      log.alerts.push({ timestamp, service: result.name, kind: "recovery", message: recoveryMsg });
+      log.serviceState[result.name] = { status: "up", since: timestamp, lastAlertedAt: timestamp };
+    } else if (!log.serviceState[result.name]) {
+      log.serviceState[result.name] = { status: "up", since: timestamp, lastAlertedAt: null };
+    } else {
+      log.serviceState[result.name].status = "up";
+    }
   }
 
   // Keep last 50 alerts

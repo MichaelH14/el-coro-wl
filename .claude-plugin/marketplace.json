@@ -8,7 +8,7 @@
     {
       "name": "el-coro",
       "source": "./",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "El Coro: 26 agents, 84 skills, 43 commands, Agent Teams, sombra profiling, growth engine, support agent"
     }
   ]
