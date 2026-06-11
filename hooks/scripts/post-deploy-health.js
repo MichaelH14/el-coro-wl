@@ -2,21 +2,35 @@
 'use strict';
 
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 /**
  * PostToolUse hook: post-deploy-health.js
  * Triggers after a Bash command containing "deploy.sh" is executed.
- * Checks common service ports to verify the deploy is healthy.
+ * Checks the service ports declared in config/el-coro.json to verify the
+ * deploy is healthy. No services configured -> exits silently.
  */
 
-// Map known projects to their ports — only check the deployed service
-const PROJECT_PORT_MAP = {
-  'tae': [3004],
-  'komand': [3100],
-  'cs-evaluator': [3006],
-  'el-coro': [3200],
-};
-const ALL_PORTS = [3004, 3100, 3006, 3200];
+const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..', '..');
+
+// Map configured services to their ports — only check the deployed service.
+// Built from config/el-coro.json: services[].name -> [services[].port]
+function loadServiceMap() {
+  try {
+    const cfg = JSON.parse(fs.readFileSync(path.join(PLUGIN_ROOT, 'config', 'el-coro.json'), 'utf8'));
+    const map = {};
+    for (const s of cfg.services || []) {
+      if (s && s.name && s.port) map[String(s.name).toLowerCase()] = [s.port];
+    }
+    return map;
+  } catch (_) {
+    return {};
+  }
+}
+
+const PROJECT_PORT_MAP = loadServiceMap();
+const ALL_PORTS = [...new Set(Object.values(PROJECT_PORT_MAP).flat())];
 const WAIT_MS = 5000;
 const REQUEST_TIMEOUT_MS = 5000;
 
@@ -68,10 +82,16 @@ async function main() {
     return;
   }
 
+  // No services configured -> nothing to check, exit silently
+  if (ALL_PORTS.length === 0) {
+    process.exit(0);
+    return;
+  }
+
   // Determine which ports to check based on the deploy command
   let portsToCheck = ALL_PORTS;
   for (const [project, ports] of Object.entries(PROJECT_PORT_MAP)) {
-    if (command.includes(project)) {
+    if (command.toLowerCase().includes(project)) {
       portsToCheck = ports;
       break;
     }

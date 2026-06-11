@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..', '..');
+const { STATE_ROOT } = require('./lib/state-dir');
 
 function readStdin() {
   return new Promise((resolve, reject) => {
@@ -30,7 +30,7 @@ async function main() {
     const reason = input.rejection_reason || input.feedback || '';
 
     // Log to session
-    const logDir = path.join(PLUGIN_ROOT, 'sombra', 'session_log');
+    const logDir = path.join(STATE_ROOT, 'sombra', 'session_log');
     if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
     const date = new Date().toISOString().slice(0, 10);
     const entry = JSON.stringify({

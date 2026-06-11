@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..', '..');
+const { STATE_ROOT } = require('./lib/state-dir');
 
 function loadJson(filePath) {
   try { return JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch (_) { return null; }
@@ -20,7 +20,7 @@ function saveJson(filePath, data) {
 
 async function main() {
   try {
-    const predDir = path.join(PLUGIN_ROOT, 'sombra', 'predictions');
+    const predDir = path.join(STATE_ROOT, 'sombra', 'predictions');
     const pendingPath = path.join(predDir, 'pending.json');
     const resolvedPath = path.join(predDir, 'resolved.json');
 
@@ -34,7 +34,7 @@ async function main() {
     const sessionLogs = [];
 
     // Load today's session log for evidence
-    const logDir = path.join(PLUGIN_ROOT, 'sombra', 'session_log');
+    const logDir = path.join(STATE_ROOT, 'sombra', 'session_log');
     const date = new Date().toISOString().slice(0, 10);
     const logPath = path.join(logDir, `${date}.jsonl`);
     try {

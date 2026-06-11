@@ -8,7 +8,9 @@ const fs = require('fs');
 const path = require('path');
 
 const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..', '..', '..');
-const DB_PATH = path.join(PLUGIN_ROOT, 'state', 'el-coro.db');
+// Runtime DB lives outside the plugin install (survives reinstalls/updates).
+const STATE_ROOT = process.env.EL_CORO_STATE_DIR || path.join(require('os').homedir(), '.el-coro');
+const DB_PATH = path.join(STATE_ROOT, 'state', 'el-coro.db');
 const SCHEMA_PATH = path.join(__dirname, 'schema.sql');
 
 async function initDatabase() {

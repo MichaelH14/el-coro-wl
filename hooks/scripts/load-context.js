@@ -5,10 +5,11 @@ const fs = require('fs');
 const path = require('path');
 
 const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..', '..');
+const { STATE_ROOT, ensureDir } = require('./lib/state-dir');
 
 // Auto-init state store on first use
 (function ensureStateStore() {
-  const dbPath = path.join(PLUGIN_ROOT, 'state', 'el-coro.db');
+  const dbPath = path.join(STATE_ROOT, 'state', 'el-coro.db');
   if (!fs.existsSync(dbPath)) {
     try {
       const initScript = path.join(PLUGIN_ROOT, 'scripts', 'lib', 'state-store', 'init.js');
@@ -26,7 +27,7 @@ const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '.
 // Ensure sombra predictions directory exists
 (function ensurePredictions() {
   try {
-    const predDir = path.join(PLUGIN_ROOT, 'sombra', 'predictions');
+    const predDir = path.join(STATE_ROOT, 'sombra', 'predictions');
     if (!fs.existsSync(predDir)) {
       fs.mkdirSync(predDir, { recursive: true });
       fs.writeFileSync(path.join(predDir, 'pending.json'), '[]');
@@ -54,11 +55,12 @@ function readMdFiles(dir) {
 }
 
 function loadProfile() {
-  const profilePath = path.join(PLUGIN_ROOT, 'sombra', 'profile.json');
+  const profilePath = path.join(STATE_ROOT, 'sombra', 'profile.json');
   const templatePath = path.join(PLUGIN_ROOT, 'sombra', 'profile.template.json');
 
   try {
     if (!fs.existsSync(profilePath)) {
+      ensureDir(path.dirname(profilePath));
       if (fs.existsSync(templatePath)) {
         fs.copyFileSync(templatePath, profilePath);
       } else {
@@ -119,9 +121,9 @@ function checkAgentTeams() {
 
 function main() {
   // Record session start time for session-summary.js
-  const sessionStartPath = path.join(PLUGIN_ROOT, 'state', 'session-start.json');
+  const sessionStartPath = path.join(STATE_ROOT, 'state', 'session-start.json');
   try {
-    const stateDir = path.join(PLUGIN_ROOT, 'state');
+    const stateDir = path.join(STATE_ROOT, 'state');
     if (!fs.existsSync(stateDir)) fs.mkdirSync(stateDir, { recursive: true });
     fs.writeFileSync(sessionStartPath, JSON.stringify({ started_at: new Date().toISOString() }));
   } catch (_) {}
@@ -148,16 +150,17 @@ function main() {
   try {
     const skillsDir = path.join(PLUGIN_ROOT, 'skills');
     if (fs.existsSync(skillsDir)) {
-      // Skills can be at depth 2 (category/skill.md) or depth 3 (category/skill-name/SKILL.md)
-      const countMd = (dir) => {
+      // Solo SKILL.md cuenta como skill — los demás .md son references/guides
+      // de soporte (contarlos inflaba el número: 124 vs 85 reales).
+      const countSkillMd = (dir) => {
         let n = 0;
         for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-          if (entry.isFile() && entry.name.endsWith('.md')) n++;
-          else if (entry.isDirectory() && entry.name !== 'scripts') n += countMd(path.join(dir, entry.name));
+          if (entry.isFile() && entry.name === 'SKILL.md') n++;
+          else if (entry.isDirectory()) n += countSkillMd(path.join(dir, entry.name));
         }
         return n;
       };
-      skillCount = countMd(skillsDir);
+      skillCount = countSkillMd(skillsDir);
     }
   } catch (_) {}
   const commandCount = readMdFiles(path.join(PLUGIN_ROOT, 'commands')).length;
@@ -170,7 +173,12 @@ function main() {
   const profileSummary = summarizeProfile(profile);
   const sombra = profileSummary ? ` Sombra: ${profileSummary.replace(/\n/g, '. ')}` : '';
 
-  sections.push(`El Coro v1.0 ACTIVO. ${agentCount} agentes, ${skillCount} skills, ${commandCount} commands.
+  let pluginVersion = '1.0.0';
+  try {
+    pluginVersion = JSON.parse(fs.readFileSync(path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json'), 'utf8')).version || pluginVersion;
+  } catch (_) {}
+
+  sections.push(`El Coro v${pluginVersion} ACTIVO. ${agentCount} agentes, ${skillCount} skills, ${commandCount} commands.
 
 REGLA OBLIGATORIA: Siempre usa los agentes de El Coro (subagent_type: "el-coro:*") para tareas de implementacion. NO hagas el trabajo directo — delega a los agentes especializados:
 - Tareas generales/multi-paso: el-coro:conductor (orquesta todo)
@@ -183,6 +191,12 @@ REGLA OBLIGATORIA: Siempre usa los agentes de El Coro (subagent_type: "el-coro:*
 - Cuando no sepas cual usar: el-coro:conductor decide
 
 Responder en espanol. No preguntar, hacer.${sombra}`);
+
+  // Reglas núcleo (digest curado de rules/) — el resto de rules/ se lee on-demand
+  try {
+    const digest = fs.readFileSync(path.join(PLUGIN_ROOT, 'rules', 'DIGEST.md'), 'utf8').trim();
+    if (digest) sections.push(digest);
+  } catch (_) {}
 
   if (sections.length === 0) {
     process.exit(0);

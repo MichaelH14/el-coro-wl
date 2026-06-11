@@ -75,6 +75,20 @@ function checkService(service) {
   });
 }
 
+// Services behind tunnels/proxies can take several seconds on the FIRST
+// connection after hours idle (cold start) and then respond in <1s. A single
+// retry eliminates that false positive without hiding real outages.
+async function checkServiceWithRetry(service) {
+  const first = await checkService(service);
+  if (first.status === "up") return first;
+  const second = await checkService(service);
+  if (second.status === "up") {
+    console.log(`[monitor]   retry-ok ${service.name} (first attempt failed)`);
+    return second;
+  }
+  return second;
+}
+
 function sendAlert(message) {
   if (!isWhatsAppEnabled()) {
     console.log("[monitor] WhatsApp alerts disabled. Alert logged to file only.");
@@ -121,7 +135,7 @@ async function runHealthChecks() {
     return;
   }
 
-  const results = await Promise.all(SERVICES.map(checkService));
+  const results = await Promise.all(SERVICES.map(checkServiceWithRetry));
   const log = readLog();
 
   const entry = { timestamp, results };

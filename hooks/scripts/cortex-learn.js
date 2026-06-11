@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..', '..');
+const { STATE_ROOT } = require('./lib/state-dir');
 const MAX_NEW_INSTINCTS_PER_SESSION = 5;
 
 function readStdin() {
@@ -32,7 +32,7 @@ function classifyPattern(filePath, content) {
 }
 
 function loadInstincts() {
-  const p = path.join(PLUGIN_ROOT, 'state', 'instincts.json');
+  const p = path.join(STATE_ROOT, 'state', 'instincts.json');
   const sessionId = process.env.CLAUDE_SESSION_ID || process.env.CLAUDE_CODE_SESSION_ID || '';
   try {
     const data = JSON.parse(fs.readFileSync(p, 'utf8'));
@@ -50,7 +50,7 @@ function loadInstincts() {
 }
 
 function saveInstincts(data) {
-  const dir = path.join(PLUGIN_ROOT, 'state');
+  const dir = path.join(STATE_ROOT, 'state');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   const p = path.join(dir, 'instincts.json');
   const tmp = p + '.tmp';

@@ -6,26 +6,30 @@ An AI orchestration plugin for [Claude Code](https://claude.com/claude-code) tha
 
 | Component | Count |
 |---|---|
-| Agents | 26 |
-| Skills | 84 |
-| Commands | 43 |
-| Hook scripts | 25 |
-| Rules | 10 |
+| Agents | 27 |
+| Skills | 85 |
+| Commands | 44 |
+| Hook scripts | 29 |
+| Rules | 13 |
+| Workflows | 1 |
 | VPS Workers | 4 |
 
 ### Agents
 - **Orchestrators:** `conductor`, `qa-gate`, `genesis`, `sombra`, `cortex`
 - **Specialists:** `planner`, `architect`, `api-designer`, `tdd-guide`, `debugger`, `build-resolver`, `refactor-cleaner`, `migration-assistant`, `code-reviewer`, `ts-reviewer`, `security-reviewer`, `performance-profiler`, `database-reviewer`, `deploy-validator`, `e2e-runner`, `doc-updater`, `monitor`
-- **Business:** `growth-engine`, `support-agent`, `designer`, `design-critic`
+- **Business:** `growth-engine`, `support-agent`, `designer`, `design-critic`, `sprite-editor`
 
 ### Skills
 Organized across 15 categories: `api`, `brainstorming`, `database`, `deploy`, `el-coro`, `frontend`, `growth`, `operations`, `security`, `support`, `system`, `testing`, `typescript`, `ui`, `workflow`.
 
 ### Commands
-43 slash commands covering planning, execution, QA, deploy, debugging, growth, support, observability, and self-evolution.
+44 slash commands covering planning, execution, QA, deploy, debugging, growth, support, observability, and self-evolution.
 
 ### Hooks
-Pre/Post tool-use hooks for: secret scanning, port safety, deploy guard, type-check, lint-check, console-log warnings, sombra observation, cortex learning, session summary, VPS sync.
+Pre/Post tool-use hooks for: secret scanning, port safety, deploy guard, type-check, lint-check, console-log warnings, sombra observation (tool use + user prompts), cortex learning, session summary, core-rules re-injection after compaction, build-failure hints, and VPS sync.
+
+### Runtime state
+All runtime state (sombra profile, session logs, instincts, SQLite store, sync logs) lives OUTSIDE the plugin install, under `~/.el-coro/` — so plugin updates and reinstalls never wipe what the system has learned. Override the location with the `EL_CORO_STATE_DIR` env var.
 
 ### VPS Workers (24/7 background)
 - `monitor-worker` — health checks on configured services
@@ -47,6 +51,15 @@ Inside a Claude Code session, run:
 ```
 
 That's it. El Coro activates on every new session via the `SessionStart` hook.
+
+**Local marketplace (recommended for development):** if you forked/cloned the repo and want zero drift between your edits and the installed plugin, add your local clone as the marketplace instead:
+
+```
+claude plugin marketplace add ~/projects/el-coro-wl
+claude plugin install el-coro@el-coro-wl
+```
+
+After editing the repo: commit (the pre-commit hook auto-bumps the version) and run `claude plugin update el-coro@el-coro-wl` to pick up the changes.
 
 ### 2. Configure
 
@@ -124,7 +137,8 @@ cd dashboard && ./deploy.sh
 - Claude Code session
 - Agents, skills, commands, hooks
 - `sombra` observes you; `cortex` learns from your corrections
-- On session close, `sync-to-vps.js` uploads profile + instincts to VPS
+- Runtime state persists in `~/.el-coro/` (survives plugin reinstalls)
+- On session close, `sync-to-vps.js` uploads profile + instincts and mirrors agents/skills/commands to the VPS (logged to `~/.el-coro/logs/sync.log`)
 
 ### VPS (24/7 background)
 - PM2 processes for monitor / support / growth / dashboard

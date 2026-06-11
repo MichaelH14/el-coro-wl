@@ -3,8 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..', '..', '..');
-const PROFILE_PATH = path.join(PLUGIN_ROOT, 'sombra', 'profile.json');
+const { STATE_ROOT, ensureDir } = require('./state-dir');
+const PROFILE_PATH = path.join(ensureDir(path.join(STATE_ROOT, 'sombra')), 'profile.json');
 const LOCK_PATH = PROFILE_PATH + '.lock';
 const LOCK_STALE_MS = 3000;
 

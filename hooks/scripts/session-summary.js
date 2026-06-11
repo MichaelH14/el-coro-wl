@@ -6,10 +6,11 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..', '..');
+const { STATE_ROOT } = require('./lib/state-dir');
 
 async function main() {
   try {
-    const dbPath = path.join(PLUGIN_ROOT, 'state', 'el-coro.db');
+    const dbPath = path.join(STATE_ROOT, 'state', 'el-coro.db');
 
     // If no database exists, nothing to do
     if (!fs.existsSync(dbPath)) {
@@ -36,7 +37,7 @@ async function main() {
 
     // Read actual session start time recorded by load-context.js
     let startedAt = now;
-    const sessionStartPath = path.join(PLUGIN_ROOT, 'state', 'session-start.json');
+    const sessionStartPath = path.join(STATE_ROOT, 'state', 'session-start.json');
     try {
       const startData = JSON.parse(fs.readFileSync(sessionStartPath, 'utf8'));
       if (startData.started_at) startedAt = startData.started_at;
@@ -54,7 +55,7 @@ async function main() {
     db.close();
 
     // Reset cortex session_new counter so next session can learn new instincts
-    const instPath = path.join(PLUGIN_ROOT, 'state', 'instincts.json');
+    const instPath = path.join(STATE_ROOT, 'state', 'instincts.json');
     try {
       const instData = JSON.parse(fs.readFileSync(instPath, 'utf8'));
       instData.session_new = 0;
