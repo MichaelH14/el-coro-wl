@@ -22,7 +22,7 @@ You have been invoked to deploy a project to production.
    - If build fails, STOP and report. Do NOT proceed.
 
 3. **Port Validation** — Verify no port conflicts.
-   - Known ports: Tae (3004), [Service Name] (3100), [Service Name] (3006).
+   - Known ports: [Service Name] (3004), [Service Name] (3100), [Service Name] (3006).
    - If target port is occupied, identify what's using it and report.
    - NEVER kill another service's port without the user's approval.
 

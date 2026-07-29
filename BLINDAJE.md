@@ -1859,7 +1859,7 @@ Migraciones que tocan infra van con deploy-validator. Migraciones que tocan DB v
 ---
 
 ### Skill: whatsapp-bot-patterns
-**Precondiciones:** Proyecto de bot de WhatsApp (OpenClaw, Kaon, etc.).
+**Precondiciones:** Proyecto de bot de WhatsApp.
 **Steps obligatorios:**
 1. Verificar conexión con gateway WhatsApp
 2. Implementar message handling con tipos

@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 'use strict';
 
+// Blindaje anti-recursion: si corremos dentro de una sesion de aprendizaje, salir ya.
+require('./lib/guard');
+
 const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const { detectPkgManager, localBinPath, execArgsForBin } = require('./lib/pkg-manager');
 
 function readStdin() {
   return new Promise((resolve, reject) => {
@@ -30,6 +34,18 @@ function findProjectRoot(filePath) {
     dir = path.dirname(dir);
   }
   return null;
+}
+
+// Igual que type-check.js: nunca "npx eslint" a secas (auto-instala un
+// paquete homónimo si no hay eslint real en el proyecto).
+function resolveEslintCommand(projectRoot) {
+  const binPath = localBinPath(projectRoot, 'eslint');
+  if (fs.existsSync(binPath)) {
+    return { cmd: binPath };
+  }
+  const pm = detectPkgManager(projectRoot);
+  const viaPm = pm ? execArgsForBin(pm, 'eslint') : null;
+  return viaPm ? { cmd: viaPm.cmd, baseArgs: viaPm.args } : null;
 }
 
 async function main() {
@@ -61,8 +77,18 @@ async function main() {
       return;
     }
 
+    const command = resolveEslintCommand(projectRoot);
+    if (!command) {
+      // No hay ESLint instalado (ni binario local ni package manager que lo
+      // resuelva) — no hay nada real que lintear. Silencio, no falso "limpio".
+      process.exit(0);
+      return;
+    }
+
+    const args = [...(command.baseArgs || []), '--no-error-on-unmatched-pattern', filePath];
+
     try {
-      const output = execFileSync('npx', ['eslint', '--no-error-on-unmatched-pattern', filePath], {
+      const output = execFileSync(command.cmd, args, {
         cwd: projectRoot,
         encoding: 'utf8',
         timeout: 12000,
@@ -72,8 +98,17 @@ async function main() {
         process.stderr.write(`[lint-check] ${output}\n`);
       }
     } catch (err) {
-      if (err.stdout && err.stdout.trim()) {
-        process.stderr.write(`[lint-check] Errores de lint:\n${err.stdout}\n`);
+      const stdout = (err.stdout || '').trim();
+      const stderr = (err.stderr || '').trim();
+      if (stdout) {
+        // ESLint corrió y encontró problemas — reporte normal.
+        process.stderr.write(`[lint-check] Errores de lint:\n${stdout}\n`);
+      } else if (stderr) {
+        // ESLint NO llegó a lintear nada (config faltante/rota, crash, etc.)
+        // — esto NO es "código limpio", es que el check no corrió.
+        process.stderr.write(`[lint-check] ESLint NO corrió (config faltante o rota):\n${stderr}\n`);
+      } else {
+        process.stderr.write(`[lint-check] ESLint NO corrió: ${err.message || 'sin detalle'}\n`);
       }
     }
   } catch (_) {

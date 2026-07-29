@@ -73,7 +73,7 @@ export default function SupportPage() {
 
         <div className="card flex flex-col items-center justify-center py-12 text-center">
           <div className="text-zinc-600 text-sm mb-2">Sin tickets de soporte</div>
-          <div className="text-zinc-700 text-xs max-w-md">Cuando tus usuarios reporten problemas por WhatsApp (Tae), apareceran aqui.</div>
+          <div className="text-zinc-700 text-xs max-w-md">Cuando tus usuarios reporten problemas por WhatsApp, apareceran aqui.</div>
         </div>
       </div>
     );

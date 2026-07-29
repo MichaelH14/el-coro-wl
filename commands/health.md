@@ -11,7 +11,7 @@ You have been invoked to perform a comprehensive health check.
 ## Workflow
 
 1. **VPS Services** — Check each known service:
-   - **Tae** (port 3004): HTTP health endpoint check. Report: up/down, response time.
+   - **[Service Name]** (port 3004): HTTP health endpoint check. Report: up/down, response time.
    - **[Service Name]** (port 3100): HTTP health endpoint check. Report: up/down, response time.
    - **[Service Name]** (port 3006): HTTP health endpoint check. Report: up/down, response time.
    - **[Product Name]**: Check process status via PM2. Report: running/stopped, uptime.
@@ -42,7 +42,7 @@ You have been invoked to perform a comprehensive health check.
 6. **Report** — Health dashboard:
    ```
    === HEALTH CHECK ===
-   Tae (3004):         [OK] 200ms
+   [Service Name] (3004):         [OK] 200ms
    [Service Name] (3100):      [OK] 150ms
    [Service Name] (3006):[OK] 180ms
    [Product Name]:        [OK] uptime 3d

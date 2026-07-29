@@ -18,7 +18,7 @@ Gather information from multiple sources and present as a unified dashboard.
    - Flag any service with status != "online" or restart count > 5.
 
 2. **Ports in Use** — Scan known ports:
-   - Tae: 3004
+   - [Service Name]: 3004
    - [Service Name]: 3006
    - [Service Name]: 3100
    - [Product Name]: check project config for assigned port.

@@ -1,18 +1,28 @@
 #!/usr/bin/env node
 'use strict';
 
+// Blindaje anti-recursion: si corremos dentro de una sesion de aprendizaje, salir ya.
+require('./lib/guard');
+
 const net = require('net');
 const { execSync } = require('child_process');
 
-// Patterns that indicate port assignment or usage
-const PORT_PATTERNS = [
-  /\bPORT\s*=\s*(\d+)/,
-  /--port\s+(\d+)/,
-  /--port=(\d+)/,
-  /\.listen\(\s*(\d+)/,
-  /:(\d{4,5})\b/,
-  /-p\s+(\d+):(\d+)/,         // docker -p host:container
-  /-p\s+(\d+)/,                // simple -p port
+// Comandos cliente: se conectan a un puerto, no lo ocupan. Nunca deben
+// disparar el chequeo de "puerto en uso".
+const CLIENT_COMMANDS = new Set([
+  'curl', 'wget', 'http', 'https', 'psql', 'mysql', 'redis-cli', 'mongosh',
+  'nc', 'ncat', 'telnet', 'ssh', 'lsof', 'ss', 'netstat',
+]);
+
+// Patrones que indican que el comando intenta LEVANTAR algo en un puerto
+// (bind), no conectarse a uno ya existente.
+const BIND_PATTERNS = [
+  /\bPORT\s*=\s*(\d+)/,              // PORT=3000 node server.js
+  /--port[=\s]+(\d+)/,               // vite --port 3000 / --port=3000
+  /-P\s+(\d+)/,                      // servidores que usan -P (mayuscula)
+  /\.listen\(\s*(\d+)/,              // server.listen(3000)
+  /-p\s+(\d+):(\d+)/,                // docker run -p host:container
+  /(?:^|\s)-p\s+(\d+)\b/,            // next dev -p 3000, http-server -p 3000
 ];
 
 function readStdin() {
@@ -31,13 +41,34 @@ function readStdin() {
   });
 }
 
+function splitSegments(cmd) {
+  return cmd.split(/&&|\|\||[;|]/);
+}
+
+function firstCommandToken(segment) {
+  const tokens = segment.trim().split(/\s+/).filter(Boolean);
+  let i = 0;
+  // saltar asignaciones de env var al inicio (FOO=bar comando ...)
+  while (i < tokens.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[i])) i++;
+  const tok = tokens[i];
+  if (!tok) return null;
+  return tok.split('/').pop();
+}
+
 function extractPort(cmd) {
-  for (const pattern of PORT_PATTERNS) {
-    const match = cmd.match(pattern);
-    if (match) {
-      const port = parseInt(match[1], 10);
-      if (port >= 1024 && port <= 65535) {
-        return port;
+  for (const segment of splitSegments(cmd)) {
+    if (/https?:\/\//.test(segment)) continue; // URL => llamada de cliente
+
+    const bin = firstCommandToken(segment);
+    if (bin && CLIENT_COMMANDS.has(bin)) continue; // comando cliente conocido
+
+    for (const pattern of BIND_PATTERNS) {
+      const match = segment.match(pattern);
+      if (match) {
+        const port = parseInt(match[1], 10);
+        if (port >= 1024 && port <= 65535) {
+          return port;
+        }
       }
     }
   }
@@ -70,18 +101,18 @@ function checkPortInUse(port) {
 
 function getProcessOnPort(port) {
   try {
-    const result = execSync(`lsof -i :${port} -t 2>/dev/null`, { encoding: 'utf8' }).trim();
+    const result = execSync(`lsof -i :${port} -t`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
     if (result) {
       const pid = result.split('\n')[0];
       try {
-        const name = execSync(`ps -p ${pid} -o comm= 2>/dev/null`, { encoding: 'utf8' }).trim();
+        const name = execSync(`ps -p ${pid} -o comm=`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
         return name || `PID ${pid}`;
       } catch (_) {
         return `PID ${pid}`;
       }
     }
   } catch (_) {
-    // lsof not available or no process found
+    // lsof no disponible o ningun proceso encontrado
   }
   return 'proceso desconocido';
 }
@@ -110,7 +141,7 @@ async function main() {
       return;
     }
   } catch (_) {
-    // Graceful degradation
+    // Degradacion graceful
   }
 
   process.exit(0);

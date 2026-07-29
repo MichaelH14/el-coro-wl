@@ -25,7 +25,7 @@ You have been invoked to display all scheduled tasks.
    Security Scan       | daily 03:00     | 2026-04-01 03:00  | 2026-03-31 03:00  | 2 findings
    Instinct Report     | every 6h        | 18:00:00          | 12:00:00          | 3 new instincts
    DB Backup           | daily 02:00     | 2026-04-01 02:00  | 2026-03-31 02:00  | OK (45MB)
-   PM2 Restart (Tae)   | weekly Sun 04:00| 2026-04-06 04:00  | 2026-03-30 04:00  | OK
+   PM2 Restart ([Service Name])   | weekly Sun 04:00| 2026-04-06 04:00  | 2026-03-30 04:00  | OK
    ```
 
 3. **Status Indicators**:
