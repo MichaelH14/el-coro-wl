@@ -71,7 +71,7 @@ After deploy, verify manually:
 
 ### 9. Cross-Reference Known Errors
 
-Check against the 10 known Capa Leaf errors (from feedback-capa-leaf-errors):
+Check against the known client-specific errors (from your own feedback notes):
 - Incomplete startup mechanisms
 - Stale references to old config
 - Missing error handling on external calls

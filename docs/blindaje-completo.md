@@ -408,8 +408,8 @@ Diferente checklist para: código nuevo, bugfix, refactor, deploy, migración, U
 Cada entregable se escanea por: API keys, tokens, passwords, IPs privadas hardcodeadas, .env commiteados. Rechazo automático si se encuentra alguno.
 *POR QUÉ: Un solo commit con una API key en un repo público es un breach de seguridad instantáneo.*
 
-**QA-12: qa-gate verifica consistencia con los 10 errores conocidos de Capa Leaf.**
-Cada entregable se cruza contra la lista de errores conocidos (feedback-capa-leaf-errors.md). Si el entregable repite algún error conocido, rechazo automático con referencia al error específico.
+**QA-12: qa-gate verifica consistencia con los errores conocidos del cliente.**
+Cada entregable se cruza contra la lista de errores conocidos (feedback-<cliente>-errors.md). Si el entregable repite algún error conocido, rechazo automático con referencia al error específico.
 *POR QUÉ: Los errores que ya se documentaron nunca deberían repetirse. Esa es la razón de documentarlos.*
 
 **QA-13: Los criterios de qa-gate son públicos para todos los agentes.**
@@ -2092,7 +2092,7 @@ Migraciones que tocan infra van con deploy-validator. Migraciones que tocan DB v
 
 **Iron Rules:**
 - **FQ-1:** El checklist crece, nunca decrece. Bugs resueltos se marcan como resueltos pero no se eliminan. *POR QUÉ: Los bugs resueltos pueden recidivar. El historial completo previene recurrencia.*
-- **FQ-2:** Incluye los 10 errores de Capa Leaf (feedback-capa-leaf-errors.md) como mínimo. *POR QUÉ: Estos errores ya causaron problemas reales. Son los primeros en verificar.*
+- **FQ-2:** Incluye los errores conocidos del cliente (feedback-<cliente>-errors.md) como mínimo. *POR QUÉ: Estos errores ya causaron problemas reales. Son los primeros en verificar.*
 - **FQ-3:** Cada item del checklist tiene: descripción del bug, cómo se manifiesta, cómo verificar que no está presente, severity. *POR QUÉ: Un checklist de "cosas malas" sin criterio de verificación es una lista de deseos, no un checklist.*
 
 **Exit criteria:** Checklist completo verificado. Matches reportados con evidencia. Checklist actualizado.
@@ -2208,7 +2208,7 @@ Migraciones que tocan infra van con deploy-validator. Migraciones que tocan DB v
 3. **¿Conductor está respetando prioridades?** Verificar que requests activos > fixes > background.
 4. **¿qa-gate está siendo respetado?** Verificar que nada llegó a the user sin pasar por qa-gate.
 5. **¿Los agentes están dentro de su dominio?** Verificar que ningún agente actuó fuera de su jurisdicción.
-6. **¿Los 10 errores de Capa Leaf se están verificando?** Verificar que the-fixer-qa los incluye.
+6. **¿Los errores conocidos del cliente se están verificando?** Verificar que the-fixer-qa los incluye.
 7. **¿Los secretos están protegidos?** Verificar que no hay credenciales en código ni en logs.
 8. **¿El deploy sigue el protocolo?** Verificar puertos, deploy.sh, health check, PM2.
 9. **¿Las reglas están evolucionando?** Verificar que cortex registra nuevos instincts.

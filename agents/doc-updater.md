@@ -12,7 +12,7 @@ description: |
 
   <example>
   Context: User added a new config option and wants existing docs updated
-  user: "Added MAX_RETRIES env var to the lottery bot, docs need updating"
+  user: "Added MAX_RETRIES env var to the API service, docs need updating"
   assistant: "Using doc-updater to update the existing configuration docs with the new MAX_RETRIES variable"
   </example>
 model: haiku

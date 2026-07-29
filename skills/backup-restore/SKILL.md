@@ -52,10 +52,10 @@ Naming convention:
 ```
 backups/
   db/
-    lottery_bot_20260331_120000.dump
+    myapp_20260331_120000.dump
     product-name_20260331_120000.dump
   config/
-    lottery_bot_env_20260331.enc
+    myapp_env_20260331.enc
     ecosystem_20260331.js
 ```
 

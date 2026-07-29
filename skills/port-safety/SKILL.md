@@ -44,7 +44,7 @@ lsof -i -P -n | grep LISTEN
 Known port assignments (keep updated):
 ```
 3000 — [project name]
-3006 — [Service Name] (intercombot)
+3006 — [Service Name]
 3100 — [Service Name] dashboard
 18789 — [Service Name] (WhatsApp gateway)
 ```
